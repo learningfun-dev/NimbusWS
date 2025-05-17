@@ -4,3 +4,6 @@ services:
     url: services_kafka_url
     event_topic: services_kafka_websocket_event
     result_topic: services_kafka_websocket_result
+  redis:
+    url: services_redis_url
+    port: services_redis_port

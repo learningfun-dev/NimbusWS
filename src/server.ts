@@ -7,8 +7,6 @@ import fastify from 'fastify';
 
 import { createTopic } from './lib/kafka/admin';
 import { connectProducer } from './lib/kafka/producer';
-import { connectConsumer } from './lib/kafka/consumer';
-import { handleKafkaResult } from './services/events'; // still imported to hook Kafka consumer
 
 const server_port = config.get('port');
 const kafka_event_topic_name = config.get('services.kafka.event_topic');
@@ -41,9 +39,8 @@ const start = async () => {
 
   // Create kafka topic if not exists
   await createTopic([kafka_event_topic_name, kafka_result_topic_name]);
-  // create kafka producter and consumer
+  // create kafka producter
   await connectProducer();
-  await connectConsumer(kafka_result_topic_name, handleKafkaResult);
 
   app.listen({ host: '0.0.0.0', port: server_port }, (err: any, address: any) => {
     if (err) {

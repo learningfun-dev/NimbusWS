@@ -22,6 +22,7 @@ const websocketHandler: FastifyPluginAsync = async (fastify: FastifyInstance) =>
             const dummy_result = {
               type: 'event_processed_successfully',
               event_id: json.event_id,
+              client_id: json.client_id,
               payload: json,
               status: 'Event Processed Successfully',
               completed_at: `${new Date().toISOString()}`,
