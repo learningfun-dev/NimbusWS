@@ -51,7 +51,7 @@ cd nimbusws
 ### 2. Start Locally with Docker Compose
 
 ```bash
-docker-compose up -d
+docker compose up --build -d
 ```
 
 This will spin up:

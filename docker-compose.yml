@@ -1,8 +1,29 @@
 services:
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    profiles: ["dev"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./vol-data/redis/data:/db
+  redis-insight:
+    image: redis/redisinsight:latest
+    restart: always
+    profiles: ["dev"]
+    container_name: redis-insight
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+    volumes:
+      - ./vol-data/redis-insight:/data
   kafka_broker:
     image: apache/kafka:latest
     hostname: broker
     container_name: broker
+    profiles: ["dev"]
     ports:
       - '9092:9092'
     environment:
@@ -23,15 +44,34 @@ services:
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
       KAFKA_NUM_PARTITIONS: 3
-  api:
-    image: fastify-ws-kafka-gateway
+    depends_on:
+      - redis
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    profiles: ["dev"]
+    ports:
+      - 8080:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka_broker:19092
+    depends_on:
+      - redis
+  numbusws:
+    image: numbusws
     build:
       dockerfile: dockerfile
     container_name: ws-kafka-gateway
+    profiles: ["numbusws"]
     ports:
       - '3000:80'
     environment:
       port: 80
       services_kafka_url: 'broker:19092'
     depends_on:
+      - redis
       - kafka_broker
+networks:
+  default:
+    driver: bridge
