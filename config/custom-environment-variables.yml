@@ -1,0 +1,6 @@
+port: port
+services:
+  kafka:
+    url: services_kafka_url
+    event_topic: services_kafka_websocket_event
+    result_topic: services_kafka_websocket_result
