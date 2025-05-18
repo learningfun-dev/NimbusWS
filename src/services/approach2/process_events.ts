@@ -6,11 +6,11 @@
 
 const config = require('config');
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import { sendToKafka } from '../lib/kafka/producer';
+import { sendToKafka } from '../../lib/kafka/producer';
 
 const serviceRoute = '/process_events';
 
-const kafka_result_topic_name = config.get('services.kafka.result_topic');
+const kafka_result_topic_name = config.get('services.kafka.approach2.result_topic');
 
 const websocketHandler: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.get(serviceRoute, { websocket: true }, (socket: any, req: any) => {

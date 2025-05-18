@@ -2,8 +2,11 @@ port: port
 services:
   kafka:
     url: services_kafka_url
-    event_topic: services_kafka_websocket_event
-    result_topic: services_kafka_websocket_result
+    approach2:
+      event_topic: services_kafka_approach2_event
+      result_topic: services_kafka_approach2_result
   redis:
     url: services_redis_url
     port: services_redis_port
+    message:
+      channel: services_redis_message_channel
