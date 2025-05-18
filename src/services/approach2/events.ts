@@ -1,10 +1,10 @@
 const config = require('config');
-const redis = require('../lib/redis/redisClient');
+const redis = require('../../lib/redis/redisClient');
 
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
-import { sendToKafka } from '../lib/kafka/producer';
-import kafka from '../lib/kafka/kafkaClient';
+import { sendToKafka } from '../../lib/kafka/producer';
+import kafka from '../../lib/kafka/kafkaClient';
 
 const serviceRoute = '/events';
 
@@ -14,8 +14,8 @@ interface WebSocketMap {
 
 const socketClients: WebSocketMap = {};
 
-const kafka_event_topic_name = config.get('services.kafka.event_topic');
-const kafka_result_topic_name = config.get('services.kafka.result_topic');
+const kafka_event_topic_name = config.get('services.kafka.approach2.event_topic');
+const kafka_result_topic_name = config.get('services.kafka.approach2.result_topic');
 
 async function sendToQueue(data: any, clientId: string) {
   const event_id = uuidv4();

@@ -2,8 +2,9 @@ port: 3000
 services:
   kafka:
     url: localhost:9092
-    event_topic: websocket_event
-    result_topic: websocket_result
+    approach2:
+      event_topic: approach2_event
+      result_topic: approach2_result
   redis:
     url: localhost
     port: 6379
