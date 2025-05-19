@@ -77,8 +77,11 @@ export class SocketService {
       );
 
       // Save offset for resume
-      if (payload.kafka_offset !== undefined) {
-        await redisClient.set(`client:${payload.client_id}:offset`, payload.kafka_offset);
+      if (payload.kafka_offset !== undefined && payload.partition !== undefined) {
+        await redisClient.set(
+          `approach3:client:${payload.client_id}:partition:${payload.partition}:offset`,
+          payload.kafka_offset,
+        );
       }
     }
   }

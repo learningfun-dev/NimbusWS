@@ -44,12 +44,11 @@ export async function startKafkaSharedConsumer(kafkaResultTopic: string, redisPu
       if (!value) return;
 
       const parsed = JSON.parse(value);
+      parsed.partition = partition;
+      parsed.topic = topic;
       parsed.kafka_offset = message.offset;
 
       await redisPublisher.publish(redisPubsubChannel, JSON.stringify(parsed));
-
-      console.log('************* publish to redis ');
-      console.dir(parsed, { depth: null });
     },
   });
 }
