@@ -5,8 +5,10 @@ services:
     approach2:
       event_topic: services_kafka_approach2_event
       result_topic: services_kafka_approach2_result
+    approach3:
+      event_topic: services_kafka_approach3_event
+      result_topic: services_kafka_approach3_result
   redis:
     url: services_redis_url
     port: services_redis_port
-    message:
-      channel: services_redis_message_channel
+    pubSubMessageChannel: services_redis_message_channel

@@ -5,6 +5,10 @@ services:
     approach2:
       event_topic: approach2_event
       result_topic: approach2_result
+    approach3:
+      event_topic: approach3_event
+      result_topic: approach3_result
   redis:
     url: localhost
     port: 6379
+    pubSubMessageChannel: 'results_ws_message_channel'

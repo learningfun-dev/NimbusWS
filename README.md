@@ -1,45 +1,42 @@
 # 🌩️ NimbusWS — Resilient WebSocket Gateway with Kafka & Redis
+
 ![Project Status](https://img.shields.io/badge/status-in--progress-yellow)
 
-> 🚧 **This project is in early development. Expect frequent changes and incomplete features.**
+> 🚧 **Early Development:** Expect frequent changes and evolving features.
 
-
-**NimbusWS** is a stateless, horizontally scalable WebSocket gateway built with [Fastify](https://www.fastify.io/), Kafka, and Redis. It enables seamless message delivery and automatic reconnection for large-scale WebSocket clients, even across pod restarts and failures.
-
-> Designed for production environments where WebSocket connections must be resilient, decoupled, and fault-tolerant.
+**NimbusWS** is a horizontally scalable, stateless WebSocket gateway powered by [Fastify](https://www.fastify.io/), Kafka, and Redis. It provides resilient message delivery and automatic reconnection across node restarts—ideal for high-availability systems.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- 📡 **Fastify + @fastify/websocket** server
-- 🧠 **Client-aware Kafka consumption**
-- 🔄 **Auto-resume on reconnect (offset tracking in Redis)**
-- 💥 **Stateless pods for seamless failover**
-- 🐳 **Docker + Docker Compose setup**
-- 🌐 **Redis-based client session registry**
+- 📡 WebSocket server built on Fastify and `@fastify/websocket`
+- 🧠 Client-aware Kafka event consumption
+- 🔁 Seamless reconnections with offset tracking in Redis
+- 🧱 Stateless pods for zero-downtime failover
+- 🐳 Docker Compose support for local development
+- 🔗 Redis-powered client session and offset registry
 
 ---
 
-## 🏗️ Architecture
+## 📐 Architecture
 
 ```
- In progress
+ [ TO BE ADDED ]
 ```
 
 ---
 
-## 📦 Tech Stack
+## 🧰 Tech Stack
 
-- Node.js + Fastify
-- @fastify/websocket
-- Kafka (Apache Kafka or Redpanda)
-- Redis (ioredis)
-- Docker & Docker Compose
+- **Node.js + Fastify**
+- **Kafka (Apache Kafka or Redpanda)**
+- **Redis (ioredis)**
+- **Docker + Docker Compose**
 
 ---
 
-## 🛠️ Getting Started
+## 🛠 Getting Started
 
 ### 1. Clone the Repository
 
@@ -48,49 +45,103 @@ git clone https://github.com/learningfun-dev/nimbusws.git
 cd nimbusws
 ```
 
-### 2. Start Locally with Docker Compose
+### 2. Start All Services with Docker Compose
 
 ```bash
-docker compose up --build -d
+docker compose --profile all up --build -d
 ```
 
-This will spin up:
-- NimbusWS WebSocket server (port `3000`)
-- Kafka
+This will start the following containers:
+
+| Container         | Description                                  | Access Point                                  |
+|------------------|----------------------------------------------|------------------------------------------------|
+| `redis`          | Redis for pub/sub and offset tracking        | `localhost:6379`                               |
+| `redis-insight`  | Redis Insight UI                             | [http://localhost:5540](http://localhost:5540) |
+| `broker`         | Kafka broker (KRaft mode)                    | `localhost:9092`                               |
+| `kafka-ui`       | Kafka UI for topic/consumer inspection       | [http://localhost:8080](http://localhost:8080) |
+| `dynamodb-local` | Local DynamoDB instance                      | [http://localhost:8000](http://localhost:8000) |
+| `dynamodb-admin` | Web UI for DynamoDB                          | [http://localhost:8001](http://localhost:8001) |
+| `ws-kafka-gateway`| WebSocket + Kafka gateway (NimbusWS app)    | [http://localhost:3000](http://localhost:3000) |
+
+**Docker Profiles**
+
+- `all`: Launches all services.
+- `dev`: Core services (no app container).
+- `numbusws`: Only the `numbusws` WebSocket service.
 
 ---
 
-### 3. Connect a WebSocket Client
+### 3. Local Development
 
-Use `wscat`, Postman, or any client to test:
+**Start dependencies (without `ws-kafka-gateway`)**:
 
 ```bash
-npx wscat -c ws://localhost:3000/events?clientId=my-client-123
+docker compose --profile dev up -d
 ```
 
-json event to send 
+**Install dependencies**:
+
+```bash
+npm install
+```
+
+**Start development server**:
+
+```bash
+npm run dev
+```
+
+---
+
+## 🧪 WebSocket Testing
+
+You can use `wscat`, Postman, or any WebSocket client.
+
+### Connect Clients
+
+#### Approach 2
+
+```bash
+npx wscat -c ws://localhost:3000/approach2/events?clientId=my-client-id
+```
+
+#### Approach 3
+
+```bash
+npx wscat -c ws://localhost:3000/approach3/events?clientId=my-client-id
+```
+
+**Sample Event Payload**:
 
 ```json
 {
-    "type":"event",
-    "data": "this is a sample event"
+  "type": "event",
+  "data": "this is a sample event"
 }
 ```
 
-### 4. Simulate Event Processing
-A demo WebSocket endpoint is available to simulate event processing and return results. After sending an event from step 3, this endpoint mimics the backend processing and pushes the result to the websocket_results Kafka topic. The corresponding WebSocket client will then receive the result via the original connection.
+### Simulate Backend Event Processing
 
-Use wscat, Postman, or any WebSocket client to connect:
+Use the `/process_events` endpoints to simulate processing.
+
+#### Approach 2
 
 ```bash
-npx wscat -c ws://localhost:3000/process_events?clientId=my-client-123
+npx wscat -c ws://localhost:3000/approach2/process_events
 ```
-Make sure to use the event_id and client_id received from the event_accepted message in step 3. Example:
+
+#### Approach 3
+
+```bash
+npx wscat -c ws://localhost:3000/approach3/process_events
+```
+
+**Sample `event_accepted` payload to respond with**:
 
 ```json
 {
   "type": "event_accepted",
-  "client_id":" my-client-123",
+  "client_id": "my-client-123",
   "event_id": "e4adaf8e-5d68-4ad8-beec-6fc8f98c617a",
   "status": "Event accepted",
   "created_at": "2025-05-17T21:09:08.096Z",
@@ -104,3 +155,4 @@ Make sure to use the event_id and client_id received from the event_accepted mes
 
 - [Fastify](https://github.com/fastify/fastify)
 - [KafkaJS](https://kafka.js.org/)
+- [ioredis](https://github.com/luin/ioredis)

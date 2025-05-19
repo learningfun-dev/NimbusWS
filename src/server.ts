@@ -16,12 +16,12 @@ const start = async () => {
   const app = fastify({ logger: true });
 
   app.register(FastifyWebSocket, {
-    errorHandler: function (error, socket /* WebSocket */, req /* FastifyRequest */, reply /* FastifyReply */) {
-      // Do stuff
-      // destroy/close connection
-      app.log.error('closing connection due to error.', error);
-      socket.terminate();
-    },
+    // errorHandler: function (error, socket /* WebSocket */, req /* FastifyRequest */, reply /* FastifyReply */) {
+    //   // Do stuff
+    //   // destroy/close connection
+    //   app.log.error('closing connection due to error.', error);
+    //   socket.terminate();
+    // },
     preClose: (done) => {
       // Note: can also use async style, without done-callback
       const server = app.websocketServer;
@@ -50,7 +50,7 @@ const start = async () => {
   // This loads all plugins defined in services
   // define your routes in one of these
   app.register(autoLoad, {
-    dir: join(__dirname, 'services'),
+    dir: join(__dirname, 'routes'),
     routeParams: true,
   });
 

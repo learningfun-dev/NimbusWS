@@ -3,7 +3,7 @@ services:
     image: redis:7
     container_name: redis
     restart: always
-    profiles: ["dev"]
+    profiles: [dev, all]
     ports:
       - "6379:6379"
     volumes:
@@ -11,7 +11,7 @@ services:
   redis-insight:
     image: redis/redisinsight:latest
     restart: always
-    profiles: ["dev"]
+    profiles: [dev, all]
     container_name: redis-insight
     ports:
       - "5540:5540"
@@ -23,7 +23,7 @@ services:
     image: apache/kafka:latest
     hostname: broker
     container_name: broker
-    profiles: ["dev"]
+    profiles: [dev, all]
     ports:
       - '9092:9092'
     environment:
@@ -49,7 +49,7 @@ services:
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
-    profiles: ["dev"]
+    profiles: [dev, all]
     ports:
       - 8080:8080
     environment:
@@ -58,12 +58,36 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka_broker:19092
     depends_on:
       - redis
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    profiles: [dev, all]
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - "./vol-data/dynamodblocal/data:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
+  dynamodb-admin: 
+    image: "aaronshaf/dynamodb-admin"
+    container_name: dynamodb-admin
+    profiles: [dev, all]
+    depends_on:
+      - dynamodb-local
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+      - AWS_REGION=us-east-1
   numbusws:
     image: numbusws
     build:
       dockerfile: dockerfile
     container_name: ws-kafka-gateway
-    profiles: ["numbusws"]
+    profiles: [numbusws, all]
     ports:
       - '3000:80'
     environment:

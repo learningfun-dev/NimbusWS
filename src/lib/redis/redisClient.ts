@@ -4,9 +4,12 @@ const config = require('config');
 const redis_url = config.get('services.redis.url');
 const redis_port = config.get('services.redis.port');
 
-const redis = new Redis({ host: redis_url, port: redis_port });
+const redisClient = new Redis({ host: redis_url, port: redis_port }); // Regular commands
+const redisSubscriber = new Redis({ host: redis_url, port: redis_port }); // Subscriber connection
+const redisPublisher = new Redis({ host: redis_url, port: redis_port }); // Subscriber connection
 
-redis.on('connect', () => console.log('Connected to Redis'));
-redis.on('error', (err: object) => console.error('Redis error:', err));
+redisClient.on('connect', () => console.log('Connected to Redis (command client)'));
+redisSubscriber.on('connect', () => console.log('Connected to Redis (subscriber client)'));
+redisPublisher.on('connect', () => console.log('Connected to Redis (publisher client)'));
 
-module.exports = redis;
+export { redisClient, redisSubscriber, redisPublisher };
