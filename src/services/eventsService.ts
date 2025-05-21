@@ -91,6 +91,7 @@ export class SocketService {
     await consumer.connect();
     await consumer.subscribe({ topic: this.kafkaResultTopic, fromBeginning: false });
 
+    // Auto-resume client sessions after disconnects (offset tracking via Redis)
     consumer.on(consumer.events.GROUP_JOIN, async (e: any) => {
       const previousSession = await redisClient.get(`client:${clientId}:connectedAt`);
       if (previousSession) {
