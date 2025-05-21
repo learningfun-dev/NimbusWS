@@ -21,9 +21,12 @@
 
 ## 📐 Architecture
 
-```
- [ TO BE ADDED ]
-```
+### Approach 2
+![Approach 2](images/NimbusWS_Approach_2.png)
+
+
+### Approach 3
+![Approach 3](images/NimbusWS_Approach_3.png)
 
 ---
 
