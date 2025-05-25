@@ -24,9 +24,123 @@
 ### Approach 2
 ![Approach 2](images/NimbusWS_A2.png)
 
+```mermaid
+graph TD
+    subgraph Clients
+        A1[Mobile Client]
+        A2[Web Client]
+        A21[IoT Devices]
+    end
+
+    subgraph WebSocket Server
+        subgraph Client Socket Mapping
+            A4[client_id1 ⟶ Socket1]
+            A41[client_id2 ⟶ Socket2]
+        end
+        A3["WebSocket Manager (Fastify)"]
+        A5[Kafka Producer]
+        subgraph Per-Client Consumers
+            A6[Kafka Consumer Group: client_id1]
+            A7[Kafka Consumer Group: client_id2]
+        end
+    end
+
+    subgraph Kafka Topics
+        B1[Topic: Events]
+        B2[Topic: Results]
+    end
+
+    subgraph Kafka Events Processor
+        C1[Consumer reads Events & writes Results]
+    end
+
+    subgraph Redis Cluster
+        R1[Redis: Kafka Offsets per client]
+    end
+
+    subgraph Persistence Layer
+        B5[Kafka Consumer Group: Storage Writer]
+        B6[DynamoDB: Processing Results]
+    end
+
+    %% Connections
+    A1 <--> A3
+    A2 <--> A3
+    A21 <--> A3
+    A3 --> A5
+    A5 --> B1
+    B1 --> C1
+    C1 --> B2
+    B2 --> A6
+    B2 --> A7
+    B2 --> B5
+    B5 --> B6
+    A6 <--> R1
+    A7 <--> R1
+    A6 --> A3
+    A7 --> A3
+
+```
 
 ### Approach 3
 ![Approach 3](images/NimbusWS_A3.png)
+
+```mermaid
+graph TD
+    subgraph Clients
+        A1[Mobile Client]
+        A2[Web Client]
+        A21[IoT Devices]
+    end
+
+    subgraph WebSocket Server
+        subgraph Client Socket Mapping
+            A4[client_id1 ⟶ Socket1]
+            A41[client_id2 ⟶ Socket2]
+        end
+        A3["WebSocket Manager (Fastify)"]
+        AR1["Redis Subscriber (per pod)"]
+        A5[Kafka Producer]
+    end
+
+    subgraph Kafka Topics
+        B1[Topic: Events]
+        B2[Topic: Results]
+    end
+
+    subgraph Kafka Event Processor
+        C1[Consumer reads Events ⟶ writes Results]
+    end
+
+    subgraph Redis Cluster
+        R1[Redis Pub/Sub: Client Channels]
+    end
+
+    subgraph Persistence Layer
+        B5[Kafka Consumer Group: Storage Writer]
+        B6[DynamoDB: Processing Results]
+    end
+
+    subgraph Result Dispatcher
+        X1[Kafka Consumer reads Results ⟶ Redis Publisher]
+    end
+
+    %% Connections
+    A1 <--> A3
+    A2 <--> A3
+    A21 <--> A3
+    A3 --> A5
+    A5 --> B1
+    B1 --> C1
+    C1 --> B2
+    B2 --> B5
+    B5 --> B6
+    B2 --> X1
+    X1 --> R1
+    R1 --> AR1
+    AR1 --> A3
+
+```
 
 ---
 
