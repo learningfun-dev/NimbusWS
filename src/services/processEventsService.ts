@@ -1,3 +1,4 @@
+const config = require('config');
 import { sendToKafka } from '../lib/kafka/producer';
 import kafkaClient from '../lib/kafka/kafkaClient';
 import { redisPublisher } from '../lib/redis/redisClient';
@@ -51,4 +52,34 @@ export async function startKafkaSharedConsumer(kafkaResultTopic: string, redisPu
       await redisPublisher.publish(redisPubsubChannel, JSON.stringify(parsed));
     },
   });
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+export async function handleProcessEvent(resultTopic: string, message: string): Promise<void> {
+  try {
+    const json: EventAcceptedPayload = JSON.parse(message);
+
+    //Complex logic to process the events
+    await sleep(3000); // Sleep for 3 sec
+
+    // Send the results after that
+    const dummy_result = {
+      type: 'event_processed_successfully',
+      event_id: json.event_id,
+      client_id: json.client_id,
+      payload: json,
+      status: 'Event Processed Successfully',
+      completed_at: new Date().toISOString(),
+      processed_result_sent_to: resultTopic,
+    };
+
+    await sendToKafka(resultTopic, dummy_result);
+  } catch (error: any) {
+    console.log(`Error sending events to kafka topic ${resultTopic} :`, error);
+  }
 }

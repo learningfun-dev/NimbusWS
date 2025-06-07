@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').config();
 const config = require('config');
 import autoLoad from '@fastify/autoload';
 import FastifyWebSocket from '@fastify/websocket';
@@ -9,8 +10,10 @@ import { createTopic } from './lib/kafka/admin';
 import { connectProducer } from './lib/kafka/producer';
 
 const server_port = config.get('port');
-const kafka_event_topic_name = config.get('services.kafka.approach2.event_topic');
-const kafka_result_topic_name = config.get('services.kafka.approach2.result_topic');
+const kafka_approach2_event_topic_name = config.get('services.kafka.approach2.event_topic');
+const kafka_approach2_result_topic_name = config.get('services.kafka.approach2.result_topic');
+const kafka_approach3_event_topic_name = config.get('services.kafka.approach3.event_topic');
+const kafka_approach3_result_topic_name = config.get('services.kafka.approach3.result_topic');
 
 const start = async () => {
   const app = fastify({ logger: true });
@@ -55,7 +58,12 @@ const start = async () => {
   });
 
   // Create kafka topic if not exists
-  await createTopic([kafka_event_topic_name, kafka_result_topic_name]);
+  await createTopic([
+    kafka_approach2_event_topic_name,
+    kafka_approach2_result_topic_name,
+    kafka_approach3_event_topic_name,
+    kafka_approach3_result_topic_name,
+  ]);
   // create kafka producter
   await connectProducer();
 
