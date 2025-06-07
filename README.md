@@ -170,27 +170,29 @@ docker compose --profile all up --build -d
 
 This will start the following containers:
 
-| Container         | Description                                  | Access Point                                  |
-|------------------|----------------------------------------------|------------------------------------------------|
-| `redis`          | Redis for pub/sub and offset tracking        | `localhost:6379`                               |
-| `redis-insight`  | Redis Insight UI                             | [http://localhost:5540](http://localhost:5540) |
-| `broker`         | Kafka broker (KRaft mode)                    | `localhost:9092`                               |
-| `kafka-ui`       | Kafka UI for topic/consumer inspection       | [http://localhost:8080](http://localhost:8080) |
-| `dynamodb-local` | Local DynamoDB instance                      | [http://localhost:8000](http://localhost:8000) |
-| `dynamodb-admin` | Web UI for DynamoDB                          | [http://localhost:8001](http://localhost:8001) |
-| `ws-kafka-gateway`| WebSocket + Kafka gateway (NimbusWS app)    | [http://localhost:3000](http://localhost:3000) |
+| Container             | Description                                  | Access Point                                  |
+|-----------------------|----------------------------------------------|------------------------------------------------|
+| `redis`               | Redis for pub/sub and offset tracking        | `localhost:6379`                               |
+| `redis-insight`       | Redis Insight UI                             | [http://localhost:5540](http://localhost:5540) |
+| `broker`              | Kafka broker (KRaft mode)                    | `localhost:9092`                               |
+| `kafka-ui`            | Kafka UI for topic/consumer inspection       | [http://localhost:8080](http://localhost:8080) |
+| `dynamodb-local`      | Local DynamoDB instance                      | [http://localhost:8000](http://localhost:8000) |
+| `dynamodb-admin`      | Web UI for DynamoDB                          | [http://localhost:8001](http://localhost:8001) |
+| `nimbus-ws-server`    | WebSocket + Kafka gateway (NimbusWS app)          | [http://localhost:3000](http://localhost:3000) |
+| `nimbus-ws-consumers` | kafka consumers and Redis publishers (NimbusWS app)    | [http://localhost:3000](http://localhost:3000) |
 
 **Docker Profiles**
 
 - `all`: Launches all services.
-- `dev`: Core services (no app container).
-- `numbusws`: Only the `numbusws` WebSocket service.
+- `dev`: Core services (without `nimbus-ws-server` and `numbus_ws_consumers`).
+- `nimbus-ws-server`: Only the `nimbus-ws-server` WebSocket service.
+- `numbus_ws_consumer`: Only the `numbus_ws_consumers`.
 
 ---
 
 ### 3. Local Development
 
-**Start dependencies (without `ws-kafka-gateway`)**:
+**Start dependencies (without `nimbus-ws-server` and `numbus_ws_consumers`)**:
 
 ```bash
 docker compose --profile dev up -d
@@ -202,11 +204,37 @@ docker compose --profile dev up -d
 npm install
 ```
 
-**Start development server**:
+**Clean dist folder**
+```bash
+npm run clean
+```
+
+**Clean vol-data folder**
+```bash
+npm run clean-vol-data
+```
+
+**Start Nimbus server**:
 
 ```bash
 npm run dev
 ```
+
+**Start kafka Producers and Consumers**:
+To start the external Kafka services, run:
+
+```bash
+npm run kafka-producer-and-consumers
+```
+
+These processes include Kafka producers and consumers that run independently from the Nimbus server. Here's what they do:
+
+1. Common Kafka Producer: Sends data to the Kafka topic provided as a parameter to the sendToKafka function.
+1. Consumer for Approach 2: Listens to the events topic and processes incoming messages.
+1. Consumer for Approach 3: Another processor for the same events topic, specific to the third approach logic.
+1. Results Consumer (Approach 3): Listens to the results topic and publishes processed messages to the appropriate Redis channel.
+
+
 
 ---
 
@@ -236,36 +264,6 @@ npx wscat -c ws://localhost:3000/approach3/events?clientId=my-client-id
   "data": "this is a sample event"
 }
 ```
-
-### Simulate Backend Event Processing
-
-Use the `/process_events` endpoints to simulate processing.
-
-#### Approach 2
-
-```bash
-npx wscat -c ws://localhost:3000/approach2/process_events
-```
-
-#### Approach 3
-
-```bash
-npx wscat -c ws://localhost:3000/approach3/process_events
-```
-
-**Sample `event_accepted` payload to respond with**:
-
-```json
-{
-  "type": "event_accepted",
-  "client_id": "my-client-123",
-  "event_id": "e4adaf8e-5d68-4ad8-beec-6fc8f98c617a",
-  "status": "Event accepted",
-  "created_at": "2025-05-17T21:09:08.096Z",
-  "data": "this is a sample event"
-}
-```
-
 ---
 
 ## 🔗 Related Projects

@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
+    "clean": "rm -rf dist/*",
+    "clean-vol-data": "rm -rf vol-data/*",
     "build": "npx tsc",
     "dev": "tsc-watch --onSuccess \"node ./dist/server.js\"",
-    "start": "npm run build && node ./dist/server.js",
+    "kafka-producer-and-consumers": "tsc-watch --onSuccess \"node ./dist/kafkaProducerAndConsumers.js\"",
+    "start": "npm run clean && npm run build && node ./dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,6 +22,7 @@
     "code": "^5.2.4",
     "config": "^4.0.0",
     "continue-config": "file:../../../.continue",
+    "dotenv": "^16.5.0",
     "fastify": "^5.3.3",
     "ioredis": "^5.6.1",
     "js-yaml": "^4.1.0",

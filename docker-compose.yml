@@ -1,3 +1,12 @@
+x-env-common: &env-common
+  NIMBUS_WS_REDIS_EVENTS_CHANNEL: "events_results:nimbus_grpc:pod_1"
+  NIMBUS_WS_KAFKA_APPROACH2_EVENTS_TOPIC: "nimbus-ws-approach2-events-v1"
+  NIMBUS_WS_KAFKA_APPROACH2_RESULTS_TOPIC: "nimbus-ws-approach2-results-v1"
+  NIMBUS_WS_KAFKA_APPROACH3_EVENTS_TOPIC: "nimbus-ws-approach3-events-v1"
+  NIMBUS_WS_KAFKA_APPROACH3_RESULTS_TOPIC: "nimbus-ws-approach3-results-v1"
+  NIMBUS_WS_REDIS_MESSAGE_CHANNEL: "nimbus-ws-redis-channel"
+  NIMBUS_WS_KAFKA_BROKERS: 'broker:19092'
+  NIMBUS_WS_REDIS_ADDRESS: 'redis'
 services:
   redis:
     image: redis:7
@@ -15,6 +24,10 @@ services:
     container_name: redis-insight
     ports:
       - "5540:5540"
+    environment:
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: 6379
+      RI_REDIS_ALIAS: "redis:6379"
     depends_on:
       - redis
     volumes:
@@ -82,20 +95,44 @@ services:
     environment:
       - DYNAMO_ENDPOINT=http://dynamodb-local:8000
       - AWS_REGION=us-east-1
-  numbusws:
+  numbus_ws_server:
     image: numbusws
     build:
       dockerfile: dockerfile
-    container_name: ws-kafka-gateway
-    profiles: [numbusws, all]
+    container_name: nimbus-ws-server
+    profiles: [nimbus-ws-server, all]
     ports:
-      - '3000:80'
+      - '3000:3000'
     environment:
-      port: 80
-      services_kafka_url: 'broker:19092'
+      <<: *env-common
+      NIMBUS_WS_PORT: 3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
     depends_on:
       - redis
       - kafka_broker
+  numbus_ws_consumers:
+    image: numbusws
+    build:
+      dockerfile: dockerfile
+    container_name: nimbus-ws-consumers
+    profiles: [numbus_ws_consumer, all]
+    command: >
+      bash -c "node kafkaProducerAndConsumers.js"
+    environment:
+      <<: *env-common
+    depends_on:
+      redis:
+        condition: service_started
+      kafka_broker:
+        condition: service_started
+      numbus_ws_server:
+          condition: service_healthy
 networks:
   default:
     driver: bridge

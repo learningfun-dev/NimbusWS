@@ -1,14 +1,14 @@
-port: port
+port: NIMBUS_WS_PORT
 services:
   kafka:
-    url: services_kafka_url
+    url: NIMBUS_WS_KAFKA_BROKERS
     approach2:
-      event_topic: services_kafka_approach2_event
-      result_topic: services_kafka_approach2_result
+      event_topic: NIMBUS_WS_KAFKA_APPROACH2_EVENTS_TOPIC
+      result_topic: NIMBUS_WS_KAFKA_APPROACH2_RESULTS_TOPIC
     approach3:
-      event_topic: services_kafka_approach3_event
-      result_topic: services_kafka_approach3_result
+      event_topic: NIMBUS_WS_KAFKA_APPROACH3_EVENTS_TOPIC
+      result_topic: NIMBUS_WS_KAFKA_APPROACH3_RESULTS_TOPIC
   redis:
-    url: services_redis_url
-    port: services_redis_port
-    pubSubMessageChannel: services_redis_message_channel
+    url: NIMBUS_WS_REDIS_ADDRESS
+    port: NIMBUS_WS_REDIS_PORT
+    pubSubMessageChannel: NIMBUS_WS_REDIS_MESSAGE_CHANNEL

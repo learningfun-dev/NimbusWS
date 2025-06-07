@@ -1,6 +1,7 @@
 # General
 .DS_Store
 node_modules
-dist
+dist/*
 vol-data/*
 !vol-data/.gitkeep
+!dist/.gitkeep

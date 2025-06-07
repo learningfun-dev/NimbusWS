@@ -16,7 +16,7 @@ WORKDIR /usr/code/
 # Update packages and install bash and gcc
 RUN apk update && \
 apk upgrade && \
-apk add bash gcc
+apk add bash gcc curl
 
 # download dumb-init 
 RUN wget -O /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64 && \
